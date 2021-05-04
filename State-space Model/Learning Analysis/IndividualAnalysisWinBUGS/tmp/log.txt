@@ -1,0 +1,61 @@
+display(log)
+check(E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/Model_bern.txt)
+model is syntactically correct
+data(E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/data.txt)
+data loaded
+compile(3)
+model compiled
+inits(1,E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/init_1.txt)
+this chain contains uninitialized variables
+inits(2,E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/init_2.txt)
+this chain contains uninitialized variables
+inits(3,E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/init_3.txt)
+this chain contains uninitialized variables
+refresh(100)
+gen.inits()
+initial values generated, model initialized
+update(1000)
+set(p)
+set(x)
+set(tau)
+set(tauprior)
+set(sigesq)
+thin.updater(10)
+update(5000)
+coda(*,E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/coda)
+stats(*)
+
+Node statistics
+	 node	 mean	 sd	 MC error	2.5%	median	97.5%	start	sample
+	p[1]	0.3027	0.161	0.001237	0.06961	0.274	0.6853	1001	15000
+	p[2]	0.2596	0.1684	0.001361	0.03498	0.2236	0.6709	1001	15000
+	p[3]	0.2607	0.1755	0.001477	0.0308	0.2213	0.6818	1001	15000
+	p[4]	0.3072	0.196	0.001674	0.03818	0.2692	0.7594	1001	15000
+	p[5]	0.2332	0.1717	0.001447	0.01982	0.1919	0.6581	1001	15000
+	p[6]	0.2052	0.1635	0.001536	0.01446	0.1611	0.622	1001	15000
+	p[7]	0.208	0.1673	0.001606	0.01367	0.1609	0.632	1001	15000
+	p[8]	0.2434	0.1872	0.001745	0.0165	0.1951	0.7088	1001	15000
+	p[9]	0.1705	0.1557	0.001395	0.006754	0.1212	0.5853	1001	15000
+	p[10]	0.1345	0.1398	0.001318	0.003121	0.08527	0.526	1001	15000
+	p[11]	0.1208	0.1385	0.001277	0.001688	0.06928	0.5226	1001	15000
+	p[12]	0.1234	0.1528	0.00144	9.892E-4	0.06308	0.5684	1001	15000
+	sigesq	1.107	0.5795	0.004718	0.4612	0.9619	2.609	1001	15000
+	tau	1.098	0.4614	0.003883	0.3835	1.04	2.169	1001	15000
+	tauprior	1.002	0.4431	0.003461	0.3295	0.9369	2.034	1001	15000
+	x[1]	-0.9537	0.8463	0.006605	-2.593	-0.9744	0.7782	1001	15000
+	x[2]	-1.259	1.013	0.008267	-3.317	-1.245	0.7124	1001	15000
+	x[3]	-1.275	1.071	0.009107	-3.449	-1.258	0.762	1001	15000
+	x[4]	-1.009	1.108	0.009502	-3.227	-0.9985	1.149	1001	15000
+	x[5]	-1.487	1.149	0.009859	-3.901	-1.437	0.6549	1001	15000
+	x[6]	-1.704	1.193	0.01137	-4.222	-1.65	0.4981	1001	15000
+	x[7]	-1.697	1.221	0.01181	-4.278	-1.652	0.5409	1001	15000
+	x[8]	-1.462	1.251	0.01181	-4.088	-1.417	0.8896	1001	15000
+	x[9]	-2.062	1.345	0.01286	-4.991	-1.981	0.3445	1001	15000
+	x[10]	-2.488	1.487	0.01505	-5.766	-2.373	0.1039	1001	15000
+	x[11]	-2.744	1.644	0.01641	-6.382	-2.598	0.09058	1001	15000
+	x[12]	-2.863	1.834	0.01789	-6.918	-2.698	0.2755	1001	15000
+history(*,E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/history.txt)
+
+History
+
+save(E:/ColginLab/MATLAB/State-space Model/Learning Analysis/IndividualAnalysisWinBUGS/tmp/log.txt)

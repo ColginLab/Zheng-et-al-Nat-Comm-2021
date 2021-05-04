@@ -1,0 +1,39 @@
+Model{  # Single learning sequence
+
+for (t in 1:T) {
+
+                 x[t]           ~   dnorm( mu[t], tau ) ;
+
+     for (j in 1:J) {
+                 n[j, t ]       ~   dbern(p[j, t]);
+                 logit(p[j, t]) <-  beta[j]*x[t]; 
+                 
+} }
+
+mu[1]  <- log(startp/(1-startp)); 
+# ~  dnorm( 0, tau ); #set to start at p = 0.5
+
+for  (j in 1:J) {
+
+      beta[j]  ~  dnorm(beta0, taub);
+
+}
+
+
+for (t in 2:T) {
+             mu[t] <- x[t-1] 
+                    }
+
+
+#priors
+
+for (t in 1:T) { 
+   logit(pPop[t]) <- beta0*x[t];
+}
+
+tau   <- 5 # ~   dgamma(10, 1)   fix variance for x
+taub  <- 5 # ~   dgamma(10, 1)   fix variance for betas
+
+beta0 ~ dnorm(1, 100) # dunif(0.01,3)
+
+ }

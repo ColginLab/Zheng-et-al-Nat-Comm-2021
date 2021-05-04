@@ -1,0 +1,1 @@
+list(theta=c(28, 8, -3, 7, -1, 1, 18, 12), mu.theta=0, sigma.theta=1000)

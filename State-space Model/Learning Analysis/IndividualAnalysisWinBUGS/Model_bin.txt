@@ -1,0 +1,28 @@
+Model{  # Single learning sequence
+
+for (t in 1:T)  {x[t]        ~   dnorm( mu[t], tau ) ;
+                 n[t ]       ~   dbin(p[t], ntot[t]);
+                 logit(p[t]) <-  x[t]  ;
+                  }
+
+mu[1] ~  dnorm( mu0, tau )  
+
+for (t in 2:T) { mu[t] <- x[t-1] 
+                      }
+
+sigesq <- 1/tau 
+
+
+#priors
+
+#mu0 ~ dunif(-5, 5)
+
+mu0 <- log(startp/(1-startp))
+
+
+tau ~ dgamma(5, 1)  # mean is a/b, variance is a/b/b
+
+
+ }
+
+

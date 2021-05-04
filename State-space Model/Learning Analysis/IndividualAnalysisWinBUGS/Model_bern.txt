@@ -1,0 +1,27 @@
+Model{  # Single learning sequence
+
+for (t in 1:T)  {x[t]        ~   dnorm( mu[t], tau ) ;
+                 n[t ]       ~   dbern(p[t]);
+                 logit(p[t]) <-  x[t] ;
+                  }
+
+mu[1] <- log(startp/(1-startp));  
+
+for (t in 2:T) { mu[t] <- x[t-1] 
+                      }
+
+sigesq <- 1/tau 
+
+
+#priors
+
+
+tau ~ dgamma(5,5)    
+
+mu0 ~ dunif(-5, 5)
+
+tauprior ~ dgamma(5,5)   
+
+ }
+
+
