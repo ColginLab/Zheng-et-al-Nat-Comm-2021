@@ -1,9 +1,9 @@
+function Stats_PxnSum_CI_Fig2(AnalysisDir, FiguresDir)
+
 %% Do stats for group data of sum Pxn
 % in sample/test trial
 % Edited on 07/30/2017
 % Update on 04/13/2021
-
-
 file_output1 = 'group_PxnSum_5LocAway_25cells_20201217_5bins_v3_ds.mat'; %4 rats, method(1-2),use downsampled place cells
 file_output1 = strcat(AnalysisDir,file_output1);
 load(file_output1)
@@ -27,6 +27,8 @@ para = [4,3,1,1;...
     3,3,3,2;...
     3,3,3,3];
 FontSize = 20;
+FigLabels = {'Fig2a', 'Fig2b', 'Fig2c', 'Fig2d', 'Fig2e', 'Fig2f', 'Fig2g', 'Fig2h', 'Fig2i'};
+ct = 1;
 for i = 1:size(para,1)
     para_method = para(i,1);
     para_reward = para(i,2);
@@ -254,7 +256,7 @@ for i = 1:size(para,1)
     sample_color = [255,165,0]./255;
     test_color = [111,57,214]./255;
     
-    figure('units','normalized','outerposition',[0 0 1 1])
+    h1 = figure('units','normalized','outerposition',[0 0 1 1]);
     hold on
     scatter(data1_dot(:,1)-0.1,data1_dot(:,2),25,'filled','MarkerEdgeColor',sample_color,'MarkerFaceColor',sample_color)
     scatter(data2_dot(:,1)+0.1,data2_dot(:,2),25,'filled','MarkerEdgeColor',test_color,'MarkerFaceColor',test_color);
@@ -310,6 +312,10 @@ for i = 1:size(para,1)
         end
     end
     title(title0)
+    saveas(h1, [FiguresDir,'\',FigLabels{ct}],'fig')
+    saveas(h1, [FiguresDir,'\',FigLabels{ct}],'epsc')
+    %saveas([Outdir,'\SeqExample_',TrialID{tt},'_',RatID,'_',DateID],'epsc')
+    ct = ct + 1;
     % Data for SPSS
     if strcmp(title0,'Correct trials')
         data_all = [];
@@ -334,4 +340,5 @@ for i = 1:size(para,1)
         data_temp(:,5) = data_temp(:,1).*data_temp(:,3);
         data_all = [data_all;data_temp];
     end
+end
 end

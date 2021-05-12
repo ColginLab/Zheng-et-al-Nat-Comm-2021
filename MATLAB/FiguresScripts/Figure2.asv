@@ -1,6 +1,10 @@
 %% Figure 2: Predictive firing developed with learning - DONE
 
-function Figure2
+function Figure2(AnalysisDir, FiguresDir)
+%FIGURE2 Function that plots Figure 2
+%   ARGUMENTS:
+%       AnalysisDir:    Directory to store analysis results
+
 clearvars
 close all
 clc

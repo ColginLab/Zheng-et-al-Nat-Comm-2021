@@ -1,14 +1,14 @@
-function RunBayesianDecoder_ripple(Path,CSClist,Outdir,cellList,spktime_fd,trackdata,plotOnly,FigDir)
+function RunBayesianDecoder_ripple_NormTime(Path,CSClist,Outdir,cellList,spktime_fd,trackdata,plotOnly)
 
-outdir = strcat(Outdir,'\BayesianDecoding_ripple');
+outdir = strcat(Outdir,'\BayesianDecoding_ripple_NormTime_v2');
 if ~isdir(outdir)
     mkdir(outdir)
 end
 if exist(strcat(outdir,'\BayesianDecodingResult.mat'),'file')==2 && plotOnly
-    %load(strcat(outdir,'\BayesianDecodingResult.mat'))
+    load(strcat(outdir,'\BayesianDecodingResult.mat'))
 else
     for ii = 1:length(Path)
-
+        disp(['Currently in ' Path{ii}])
         % Extract ratID and dateID
         ind = strfind(Path{ii},'Rat');
         RatID = Path{ii}(ind:ind+5);
@@ -73,22 +73,6 @@ else
         BayesianDecodingResult.(RatID).(DateID).sign_correct_posttest = behavioralData.sign_correct_posttest;
         BayesianDecodingResult.(RatID).(DateID).param = param;
     end
-
-    %% Export analysis results and all the necessary scripts
-%     FunctionPath = mfilename('fullpath');
-%     FunctionName = mfilename;
-%     OutScript_dir = strcat(outdir,'\Scripts');
-%     if isdir(OutScript_dir)
-%         rmdir(OutScript_dir,'s')
-%     end
-%     mkdir(OutScript_dir)
-%     [fList] = matlab.codetools.requiredFilesAndProducts(FunctionPath);
-%     for ff = 1:length(fList)
-%         [~,fname,ext] = fileparts(fList{ff});
-%         copyfile(fList{ff},strcat(OutScript_dir,'\',fname,ext));
-%     end
-%     save(strcat(outdir,'\BayesianDecodingResult.mat'),'BayesianDecodingResult','FunctionName')
-    save(strcat(outdir,'\BayesianDecodingResult.mat'),'BayesianDecodingResult')
 end
 %% Extract relevant data for plotting
 p_x_n = {};
@@ -213,6 +197,22 @@ posbinsize = BayesianDecodingResult.(ratID{rr}).(dateID{dd}).param.posbinsize;
 posaxis = 0:posbinsize:2*pi-posbinsize;
 timeStep = BayesianDecodingResult.(ratID{rr}).(dateID{dd}).param.step; % in sec
 
+%% Normalize replay duration
+taxis_norm = 0:.05:1;
+p_x_n_orig = p_x_n;
+for pp = 1:length(p_x_n)
+    pxn = p_x_n{pp};
+    % Remove leading and trailing empty bin
+    withspk = ~isnan(pxn(1,:));
+    range = find(withspk,1):find(withspk,1,'last');
+    pxn = pxn(:,range);
+
+    in = ~isnan(sum(pxn,1));
+    tindex = 1:size(pxn,2);
+    tindex = tindex/max(tindex);
+    p_x_n{pp} = VFR(pxn(:,in),tindex(in)',taxis_norm,size(pxn,1),.05);
+end
+
 %% Plot average posterior probability aligned by stop or reward locations and replay onset or offset
 r2_thr = 0.5;
 dur_thr = .05; % in sec
@@ -220,10 +220,10 @@ emptyBin_thr = .2; % percent number of empty bin in pxn allowed
 LocDis = 14; % in deg
 nLocAway = 8;
 nShuffle = 5000; % shuffle position to create null distribution
-nType = unique(sessionType);
+nType = unique(sessionType2);
 Replay_alignment = {'onset','offset'};
 Position_alignment = {'current position','goal position'};
-tbinL = 6; % number of time bins
+tbinL = length(taxis_norm); % number of time bins
 CrtErr = {'All','Correct','Error'};
 s = RandStream('mt19937ar','Seed',0);
 for cc = 1:length(CrtErr)    
@@ -238,7 +238,7 @@ for cc = 1:length(CrtErr)
                 pxn_aligned = p_x_n;
                 for ii = 1:length(pxn_aligned)
                     pxn_aligned{ii} = circshift(pxn_aligned{ii},-shift(ii));
-                    emptyBin_percent(ii) = sum(isnan(pxn_aligned{ii}(1,:)))/length(pxn_aligned{ii}(1,:));
+                    emptyBin_percent(ii) = sum(isnan(p_x_n_orig{ii}(1,:)))/length(p_x_n_orig{ii}(1,:));
                 end
 
                 fname2 = 'currPos';
@@ -250,14 +250,14 @@ for cc = 1:length(CrtErr)
                 pxn_aligned = p_x_n;
                 for ii = 1:length(pxn_aligned)
                     pxn_aligned{ii} = circshift(pxn_aligned{ii},-shift(ii));
-                    emptyBin_percent(ii) = sum(isnan(pxn_aligned{ii}(1,:)))/length(pxn_aligned{ii}(1,:));
+                    emptyBin_percent(ii) = sum(isnan(p_x_n_orig{ii}(1,:)))/length(p_x_n_orig{ii}(1,:));
                 end
 
                 fname2 = 'goalPos';
             end
 
             % combine replay events in each type of session
-            sessions = unique(sessionType);
+            sessions = unique(sessionType2);
             sessions = sessions([4;1;2;3]);
 
             % Construct bar graph for possible goal location
@@ -267,8 +267,10 @@ for cc = 1:length(CrtErr)
             h = figure;
             set(h,'Units','normalized','Position',[0 0 1 1])
             ha = zeros(length(sessions),1);
+            h_duration = figure;
+            set(h_duration,'Units','normalized','Position',[0 0 .5 .5])
             for ss = 1:length(sessions)
-                 in = strcmp(sessionType,sessions{ss}) &... 
+                 in = strcmp(sessionType2,sessions{ss}) &... 
                      r_squared >= r2_thr &...
                      duration >= dur_thr &...
                      emptyBin_percent <= emptyBin_thr;               
@@ -294,33 +296,34 @@ for cc = 1:length(CrtErr)
                     end
                 end
                 pxn = pxn_aligned(in);
+                duration_in = duration(in);
                 %[~,tbinL] = cellfun(@size,pxn);
                 pxn_combined = NaN(length(posaxis),min(tbinL),length(pxn));
                 for pp = 1:length(pxn)
                     if strcmp(Replay_alignment{r1},'onset')
                         range = 1:min(tbinL);% align onset of replay
-
+                        tbinSelected = 1;
                         taxis = 0:timeStep:(min(tbinL)-1)*timeStep;
                         fname1 = 'InitiationBias';
                     elseif strcmp(Replay_alignment{r1},'offset')
                         range = size(pxn{pp},2)-min(tbinL)+1:size(pxn{pp},2);% align offset of replay
-
+                        tbinSelected = min(tbinL);
                         taxis = 0-(min(tbinL)-1)*timeStep:timeStep:0;
                         fname1 = 'TerminationBias';
                     end
                     pxn_combined(:,:,pp) = pxn{pp}(:,range);
                 end
-
+                figure(h)
                 ha(ss) = subplot(2,length(sessions),ss);
-                imagesc(taxis,(posaxis-pi)*180/pi,nanmean(pxn_combined,3))
+                imagesc(taxis_norm,(posaxis-pi),nanmean(pxn_combined,3))
                 axis xy square
                 hold on
                 plot(xlim,[0 0],'w--','LineWidth',1)
                 cb = colorbar;
                 title([sessions{ss},' n=',num2str(sum(in))])
                 if ss == 1
-                    xlabel(['Time relative to replay ', Replay_alignment{r1}, ' (sec)'])
-                    ylabel(['Position relative to ', Position_alignment{p1}, ' (deg)'])
+                    xlabel(['Normalized time ', Replay_alignment{r1}])
+                    ylabel(['Position relative to ', Position_alignment{p1}, ' (rad)'])
                 elseif ss == length(sessions)
                     ylabel(cb,'Mean posterior probability')
                 end
@@ -328,7 +331,7 @@ for cc = 1:length(CrtErr)
                 % Add up probability
                 for pp = 1:length(locationRangeInd)
                     inrange = locationRangeInd(pp)-1:locationRangeInd(pp)+1;
-                    ProbSum(pp,ss) = nansum(nansum(nansum(pxn_combined(inrange,:,:))));
+                    ProbSum(pp,ss) = nansum(nansum(nansum(pxn_combined(inrange,tbinSelected,:))));
                 end
                 % Find null distribution
                 ProbSum_null = zeros(length(locationRangeInd),nShuffle);
@@ -341,7 +344,7 @@ for cc = 1:length(CrtErr)
                     end
                     for pp = 1:length(locationRangeInd)
                         inrange = locationRangeInd(pp)-1:locationRangeInd(pp)+1;
-                        ProbSum_null(pp,ff) = nansum(nansum(nansum(pxn_combined_shu(inrange,:,:))));
+                        ProbSum_null(pp,ff) = nansum(nansum(nansum(pxn_combined_shu(inrange,tbinSelected,:))));
                     end
                 end
                 [CI_u, CI_l] = CorrectionForMultipleComparsion(ProbSum_null');
@@ -357,15 +360,26 @@ for cc = 1:length(CrtErr)
                     xlabel(['Location # relative to ', Position_alignment{p1}])
                     ylabel('sum of posterior probability')
                 end
+                
+                % Plot duration
+                figure(h_duration)
+                hold on
+                plot(ss+randn(length(duration_in),1)*.1,duration_in,'k.','MarkerSize',5)
             end
-            colormap hot
+            colormap(h,'hot')
             set(ha,'CLim',[0 .04])
-            
-            %if exist('outdir','var')                % FIGURE 7 SAVED HERE
-                saveas(h,strcat(FigDir{2},'\',fname1,'_',fname2,'_',CrtErr{cc}),'epsc')
-                saveas(h,strcat(FigDir{2},'\',fname1,'_',fname2,'_',CrtErr{cc}),'png')
+            figure(h_duration)
+            set(gca,'Box','off','XTick',1:ss,'XTickLabel',sessions)
+            axis square
+            ylabel('Duration (s)')
+            if exist('outdir','var')
+                saveas(h,strcat(outdir,'\',fname1,'_',fname2,'_',CrtErr{cc}),'epsc')
+                saveas(h,strcat(outdir,'\',fname1,'_',fname2,'_',CrtErr{cc}),'png')
                 close(h)
-            %end
+                saveas(h_duration,strcat(outdir,'\',fname1,'_',fname2,'_',CrtErr{cc},'_dur'),'epsc')
+                saveas(h_duration,strcat(outdir,'\',fname1,'_',fname2,'_',CrtErr{cc},'_dur'),'png')
+                close(h_duration)
+            end
         end
     end
 end
@@ -382,7 +396,11 @@ h = figure;
 set(h,'Units','normalized','Position',[0 0 1 1])
 rmv = strcmp(sessions,'PreRun');
 sessions(rmv) = [];
+sessions{1} = 'InitialFour';
+sessions{2} = 'LastFour';
+sessions{3} = 'PostTest';
 ha = zeros(length(sessions),1);
+outdata=[];
 for ss = 1:length(sessions)
     in = strcmp(sessionType,sessions{ss}) &... 
          r_squared >= r2_thr &...
@@ -391,20 +409,41 @@ for ss = 1:length(sessions)
 
     relative_stopLoc = stopLoc(in)-rewardLoc(in);
     relative_predLoc = angle(exp((predicted_pos_last(in)-rewardLoc(in))*1i));
+    temp = load(trackdata{1});
+    relative_predLoc = round(relative_predLoc/mean(diff(temp.Ang_RewardLoc_ontrack))); % convert to location number
+    % Categorize trials
+    stopLoc_axis = -.875:.25:.875;
+    [~,~,stopLoc_bin] = histcounts(relative_stopLoc,stopLoc_axis);
+    % Remove correct and nonstop trial
+    rmv = stopLoc_bin==0; %| stopLoc_bin==4;
+    stopLoc_bin(rmv) = [];
+    relative_predLoc(rmv) = [];
+    
     ha(ss) = subplot(1,length(sessions),ss);
-    plot(relative_stopLoc,relative_predLoc,'ko')
+    histogram2(stopLoc_bin,relative_predLoc,'DisplayStyle','tile','ShowEmptyBins','on',...
+    'EdgeColor','none','BinMethod','integers','YBinLimits',[-10,10]);
+    %plot(stopLoc_bin,relative_predLoc,'ko')
+    cbar = colorbar;
+    ylabel(cbar,'counts')
     title(sessions{ss})
-    axis square
+    axis square tight
+    set(ha(ss),'XTick',[1 2 3 4 5 6 7],'XTickLabel',{'-3','-2','-1','0','1','2','3'},'xlim',[0 8],'Box','off')
     if ss == 1
-        ylabel('Predicted location relative to reward (rad)')
+        ylabel('Predicted location relative to reward (loc #)')
     elseif ss == 2
-        xlabel('Stop location relative to reward (rad)')
+        xlabel('Error type')
     end
+    outdata.(sessions{ss}).relative_predLoc=relative_predLoc;
+    outdata.(sessions{ss}).stopLoc_bin=stopLoc_bin-4;
+    outdata.(sessions{ss}).xlabels={'-3','-2','-1','0','1','2','3'};
 end
-linkaxes(ha,'xy')           % THIS IS SUPPLEMENTARY FIGURE 9
-saveas(h,strcat(FigDir{4},'\StopVSPredictLocCorr'),'epsc')
-saveas(h,strcat(FigDir{4},'\StopVSPredictLocCorr'),'png')
+linkaxes(ha,'xy')
+h.Renderer = 'painters';
+saveas(h,strcat(outdir,'\StopVSPredictLocCorr'),'epsc')
+h.Renderer = 'opengl';
+saveas(h,strcat(outdir,'\StopVSPredictLocCorr'),'png')
 close(h)
+save(strcat(outdir,'\StopVSPredictLocCorr_data.mat'),'outdata')
 
 %% Examine changes in r2 values as a function of trial numbers of Sample/Test
 h = figure;
@@ -424,8 +463,8 @@ xlim([.5 7.5])
 set(gca,'XTick',1:7,'XTickLabel',xTickL,'Box','off')
 ylabel('Replay fidelity (r2)')
 xlabel('Sample/Test trials')
-%saveas(h,strcat(outdir,'\r2overTrials'),'epsc')
-%saveas(h,strcat(outdir,'\r2overTrials'),'png')
+saveas(h,strcat(outdir,'\r2overTrials'),'epsc')
+saveas(h,strcat(outdir,'\r2overTrials'),'png')
 close(h)
 
 % Stats for r2 values
@@ -464,8 +503,7 @@ end
 nType = [nType;{'combined'}];
 for st = 1:length(nType)
     if strcmp(nType{st},'combined')
-        %outdir_figs = outdir;
-        outdir_figs = FigDir{1};
+        outdir_figs = outdir;
     else
         outdir_figs = strcat(outdir,'\',nType{st});
         if ~isdir(outdir_figs)
@@ -475,9 +513,9 @@ for st = 1:length(nType)
     %% Plot Bayesian examples
     nExample = 5;
     if strcmp(nType{st},'combined')
-        in = (strcmp(sessionType,'InitialFour')| strcmp(sessionType,'LastFour'))& emptyBinThr;
+        in = (strcmp(sessionType2,'BeforeTest')| strcmp(sessionType2,'AfterTest'))& emptyBinThr;
     else
-        in = strcmp(sessionType,nType{st}) & emptyBinThr;
+        in = strcmp(sessionType2,nType{st}) & emptyBinThr;
     end
     % correct before trials
     pxn_correct = p_x_n(Correct_test==1 & in);
@@ -549,14 +587,13 @@ for st = 1:length(nType)
             xlabel('Time (sec)')
         end    
     end
-    % TODO: ADD IF STATEMENT CONDITIONAL ON "COMBINED" SETTING
     saveas(h,strcat(outdir_figs,'\BayesianDecodingExamples'),'epsc')
     saveas(h,strcat(outdir_figs,'\BayesianDecodingExamples'),'png')
     close(h)
     
     %% Plot r2 distributions between correct and incorrect trials
     if strcmp(nType{st},'combined')
-        in = (strcmp(sessionType,'InitialFour')| strcmp(sessionType,'LastFour'))& emptyBinThr;
+        in = (strcmp(sessionType2,'BeforeTest')| strcmp(sessionType2,'AfterTest'))& emptyBinThr;
         r2min = min(r_squared);
         r2max = max(r_squared);
         sigma = .1;

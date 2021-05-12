@@ -10,9 +10,9 @@
 % add measurements group_Pxn_approach_vel_prereward_2bin and group_Pxn_approach_vel_postreward_2bin
 
 %% settings
-function doall_group_Pxn(AnalysisDir)
+function doall_group_Pxn(DataDir, AnalysisDir)
 
-fig_dir = 'F:\MATLAB\MainFunctions\Code & Data Circular Track\';
+%fig_dir = 'F:\MATLAB\MainFunctions\Code & Data Circular Track\';
 ind_approach = 5;  % approaching reward location (3 locations away from reward location):
 nbin_sum = 5;  % CHANGE: the number to sum up probabilities
 
@@ -80,7 +80,7 @@ for ns = 1:isession
     Ncell = getnumberofcells_cz_v1(TTList0);
     
     if exist(file_input,'file')>0 && Ncell >= ncell_threshold
-        disp(['Currently at ' pwd])
+        disp(['Currently in ' pwd])
         Ns = Ns+1;
         path_group{Ns} = pathRats{ns};
         
@@ -328,7 +328,7 @@ load(file_output1)
 % Stats_PxnSum
 
 Stats_PxnSum_CI
-Stats_PxnSum_CI_Fig2  % directly plot final Fig2
+%Stats_PxnSum_CI_Fig2  % directly plot final Fig2
 %% do Stats
 % file_output2 = 'group_Pxn_forErr_5LocAway_35cells_20170731.mat';
 % file_output2 = 'group_Pxn_forErr_5LocAway_35cells_20171006_v2.mat';

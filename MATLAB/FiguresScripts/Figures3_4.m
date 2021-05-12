@@ -27,8 +27,8 @@ addpath(GenDir)
 cd([FiguresDir(1:ind+5) '\MainFunctions\Code & Data Circular Track'])
 
 %%
-doall_get_gammaTFR_eachseq_EH
-Stats_gammaTFR_eachseq_forMultiCompare
+%doall_get_gammaTFR_eachseq_EH
+%Stats_gammaTFR_eachseq_forMultiCompare
 BayesianDecodingExample
 
 cd(FiguresDir)
