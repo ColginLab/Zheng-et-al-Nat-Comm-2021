@@ -4,6 +4,8 @@ function Figure2(DataDir, AnalysisDir, FiguresDir)
 %       DataDir:        Raw data directory
 %       AnalysisDir:    Directory to store analysis results
 %       FiguresDir:     Directory to save figure(s). eps and fig format
+%   RELEVANT FIGURES:
+%       Fig2a-i
 close all
 clc
 FuncDir = pwd;

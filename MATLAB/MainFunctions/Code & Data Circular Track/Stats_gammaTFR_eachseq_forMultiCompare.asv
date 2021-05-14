@@ -1,21 +1,16 @@
-function Stats_gammaTFR_eachseq_forMultiCompare(file_out_name, FiguresDir, AnalysisDir)
-%data_folder = 'E:\ColginLab\Data Analysis\GroupData\';
+function Stats_gammaTFR_eachseq_forMultiCompare(FiguresDir, )
+data_folder = 'E:\ColginLab\Data Analysis\GroupData\';
 %fig_out = [parentfd,'\GroupData Figures'];
-
-% FiguresDir = 'E:\ColginLab\Figures\Figures3_4';
-% if ~isdir(FiguresDir)
-%     mkdir(FiguresDir)
-% end
-
-%%file_input1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
-
+fig_out = 'E:\ColginLab\Figures\Figures3_4';
+if ~isdir(fig_out)
+    mkdir(fig_out)
+end
+file_input1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
 % file_input1 = 'group_gammaTFR_eachseq_lowfirEEG_20190519.mat'; % 4 rats % remove jumping-out points, ind_approach = 3; use EEG with low firing
 % file_input1 = 'group_gammaTFR_eachseq_ds_stable_20190525.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
 % file_input1 = 'group_gammaTFR_eachseq_ds_unstable_20190525.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
-
-%%file_input1 = strcat(data_folder,file_input1);
-
-load(file_out_name)
+file_input1 = strcat(data_folder,file_input1);
+load(file_input1)
 
 numbins = 90; % Number of bins
 bin_ang = 2*pi/numbins;
@@ -202,7 +197,7 @@ for itrial = 1:Ntrial
         max0 = max(Pxn0{ii,4});
         xspan0(ii,itrial) = max0-min0;
         xspandif0(ii,itrial) = max0-min0-(max(Pxn0{ii,6})-min(Pxn0{ii,6}));
-        tspan0(ii,itrial) = Pxn0{ii,1}(end)+dt-step_param-Pxn0{ii,1}(1);
+        tspan0(ii,itrial) = Pxn0{ii,1}(end)+dt-step-Pxn0{ii,1}(1);
         slope0(ii,itrial) = data_info0(ii,12);
 %         slope0(ii,itrial) = xspan0(ii,itrial)/tspan0(ii,itrial);
         dist_forward0(ii,itrial) = max(Pxn0{ii,4}-Pxn0{ii,6}');
@@ -532,18 +527,17 @@ if strcmp(ind_Type{i1},'all')
     end
     linkaxes(ha3,'y')
     ylim([0.4 0.58])
-    % Save selected figures - not necessary
-    %saveas(ffa3,[FiguresDir,'\SeqSlopePower'],'epsc')
-    %saveas(ffa3,[FiguresDir,'\SeqSlopePower'],'fig')
+    % Save selected figures
+    saveas(ffa3,[fig_out,'\SeqSlopePower'],'epsc')
+    saveas(ffa3,[fig_out,'\SeqSlopePower'],'fig')
 end
 end
 %% Save selected figures
-saveas(ffa1,[FiguresDir,'\Fig4_bc'],'epsc')
-saveas(ffa1,[FiguresDir,'\Fig4_bc'],'fig')
-saveas(ffa2,[FiguresDir,'\Fig3_bc'],'epsc')
-saveas(ffa2,[FiguresDir,'\Fig3_bc'],'fig')
+saveas(ffa1,[fig_out,'\SeqSlope_samp'],'epsc')
+saveas(ffa1,[fig_out,'\SeqSlope_samp'],'fig')
+saveas(ffa2,[fig_out,'\SeqSlope_test'],'epsc')
+saveas(ffa2,[fig_out,'\SeqSlope_test'],'fig')
 close all
 
 %% Save stats output
-save([AnalysisDir,'\Stats_SeqSlope.mat'],'StatsOut','StatsData')
-end
+save([fig_out,'\Stats_SeqSlope.mat'],'StatsOut','StatsData')

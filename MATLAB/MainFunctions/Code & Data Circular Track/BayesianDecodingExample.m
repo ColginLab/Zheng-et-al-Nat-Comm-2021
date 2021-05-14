@@ -1,8 +1,8 @@
-%clear
-parentfd = fileparts(mfilename('fullpath'));
+function BayesianDecodingExample(DataDir, FiguresDir)
+%parentfd = fileparts(mfilename('fullpath'));
 %Outdir = [parentfd,'\GroupData Figures'];
 %Outdir = 'E:\ColginLab\MATLAB\Figures\GroupData';
-Outdir = 'E:\ColginLab\Figures\Figures3_4';
+%Outdir = 'E:\ColginLab\Figures\Figures3_4';
 % use the overall place field excluding pre-ruuning trials as a decoder
 file_input = 'BayesData_CircMap_v1_dt40ms_10ms_1cells_1spk_v2_ds.mat';
 file_input_speed = 'Data_angle_ontrack.mat';  % input the speed information
@@ -21,6 +21,7 @@ Selected_Trial_all = {[2 3];... % Test trial number
 tWin_all = {[-2 0];...
             [-2 0]}; % time window with respect to stop; in sec       
 
+FigLabels = {'\Fig3a', '\Fig4a'};
 for ii = 1:length(Selected_session)
     path_ns = pathRats{Selected_session(ii)};
     str = strsplit(path_ns,'\');
@@ -77,8 +78,9 @@ for ii = 1:length(Selected_session)
                 ylabel(cb,'Posterior probability')
             end
         end
-        saveas(h1,[Outdir,'\SeqExample_',TrialID{tt},'_',RatID,'_',DateID],'fig')
-        saveas(h1,[Outdir,'\SeqExample_',TrialID{tt},'_',RatID,'_',DateID],'epsc')
+        saveas(h1,[FiguresDir, FigLabels{tt}],'fig')
+        saveas(h1,[FiguresDir, FigLabels{tt}],'epsc')
         close(h1)
     end
+end
 end

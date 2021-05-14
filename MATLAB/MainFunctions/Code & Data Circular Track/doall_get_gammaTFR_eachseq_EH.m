@@ -6,12 +6,14 @@
 
 %clear
 
+function doall_get_gammaTFR_eachseq_EH(file_analysis_name_ext, DataDir)
+
 parentfd = fileparts(mfilename('fullpath'));
 % use the overall place field excluding pre-running trials as a decoder
 % Downsample the place cells so that fields equally distrubuted on the track
 file_input_speed = 'Data_angle_ontrack.mat';  % input the speed information
 %data_folder = [parentfd,'\GroupData\'];
-data_folder = 'E:\ColginLab\Data Analysis\GroupData\';
+%AnalysisDir = 'E:\ColginLab\Data Analysis\GroupData\';
 
 % file_input = 'BayesData_CircMap_v1_dt40ms_10ms_1cells_1spk_v2_ds.mat';
 % file_input_TFR = 'Data_TFR_gamma_lowfir.mat';
@@ -21,7 +23,6 @@ data_folder = 'E:\ColginLab\Data Analysis\GroupData\';
 file_input = 'BayesData_CircMap_v1_dt40ms_10ms_1cells_1spk_v2_ds.mat';
 file_input_TFR = 'Data_TFR_gamma_SR.mat';
 file_spike_input1 = 'Cells_ds_ALLLaps_v2_vel_0.mat';  % used to get all spikes
-file_output1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
 
 % file_input = 'BayesData_CircMap_v1_dt40ms_10ms_1cells_1spk_v2_ds_stable.mat';
 % file_input_TFR = 'Data_TFR_gamma.mat';
@@ -33,7 +34,7 @@ file_output1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-
 % file_spike_input1 = 'Cells_ds_unstable_ALLLaps_v2_vel_0.mat';  % used to get all spikes
 % file_output1 = 'group_gammaTFR_eachseq_ds_unstable_20190525.mat'; % 4 rats % remove jumping-out points, ind_approach = 3; use EEG with low firing
 
-file_output1 = strcat(data_folder,file_output1);
+%file_out_name = strcat(AnalysisDir,file_out_name);
 
 directories_allData_v1
 fig_dir = parentfd;
@@ -41,7 +42,7 @@ fig_dir = parentfd;
 fig_folder = 'Figure_Pxn_gammaTFR_sequence_20190529\'; % 4 rats, zscore gamma over all sessions, remove jumping-out points
 
 dt = .04;
-step = .01;
+step_param = .01;
 ncell_threshold = 25;% Only use data with more than 25 cells in a session
 
 % Default parameters
@@ -63,7 +64,7 @@ ffa = figure('Units','normalized','Position',[0 0 0.35 1]);
 for ns = 1:isession
     path_ns = pathRats{ns};
     cd(path_ns);
-    disp(['Currently at ' path_ns])
+    disp(['Currently in ' path_ns])
     
     csclist_ns = CSClist_CA1{ns};
     
@@ -107,9 +108,9 @@ for ns = 1:isession
                     if ~isempty(ind11)
                         [~,ind11] = min(abs(TFR_gamma{2,1}-score_nseg{nl,6}(ind1)));
                     end
-                    ind22 = find(abs(TFR_gamma{2,1}-score_nseg{nl,6}(ind2)-(dt-step)) < 1/Fs);
+                    ind22 = find(abs(TFR_gamma{2,1}-score_nseg{nl,6}(ind2)-(dt-step_param)) < 1/Fs);
                     if ~isempty(ind22)
-                        [~,ind22] = min(abs(TFR_gamma{2,1}-score_nseg{nl,6}(ind2)-(dt-step)));
+                        [~,ind22] = min(abs(TFR_gamma{2,1}-score_nseg{nl,6}(ind2)-(dt-step_param)));
                     end
                     
                     if isempty(ind11) || isempty(ind22) 
@@ -121,7 +122,7 @@ for ns = 1:isession
                         nspk = nan(Ncell,1);
                         for nc = 1:Ncell
                             ind = find(spikes{nc,1} >= score_nseg{nl,6}(ind1) &...
-                                spikes{nc,1} < score_nseg{nl,6}(ind2)+dt-step);
+                                spikes{nc,1} < score_nseg{nl,6}(ind2)+dt-step_param);
                             nspk(nc) = length(ind);
                         end
                         ind = find(nspk>0);
@@ -266,4 +267,5 @@ for ns = 1:isession
     end
 end
 
-save(file_output1,'-v7.3');
+save(file_analysis_name_ext,'-v7.3');
+end
