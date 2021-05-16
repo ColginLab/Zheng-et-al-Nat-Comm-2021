@@ -1,17 +1,19 @@
 % Edited on 06/28/2019
 % load sequences that have been detected before, in each trial type
 % for each sequence, get the sg/fg phase and cycle number for each spikes
-
-parentfd = fileparts(mfilename('fullpath'));
-data_folder =[parentfd,'\GroupData\'];
-fig_folder_out = [parentfd,'\GroupData Figures'];
-file_input1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
+function group_gammaphase_eachseq(DataDir, file_analysis_name_ext, file_analysis_out_ext, FiguresDir)
+%parentfd = fileparts(mfilename('fullpath'));
+%data_folder =[parentfd,'\GroupData\'];
+%FiguresDir = [parentfd,'\GroupData Figures'];
+%file_input1 = 'group_gammaTFR_eachseq_20190529.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
 % file_input1 = 'group_gammaTFR_eachseq_lowfirEEG_20190519.mat'; % 4 rats % remove jumping-out points, ind_approach = 3; use EEG with low firing
 % file_input1 = 'group_gammaTFR_eachseq_ds_stable_20190525.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
 % file_input1 = 'group_gammaTFR_eachseq_ds_unstable_20190525.mat'; % 4 rats % remove jumping-out points, ind_approach = 3;
-file_input1 = strcat(data_folder,file_input1);
-file_output2 = 'data_gammaphase_20190628.mat';
-load(file_input1)
+%file_input1 = strcat(data_folder,file_input1);
+
+%file_analysis_out = 'data_gammaphase_20190628.mat';
+
+load(file_analysis_name_ext)
 
 numbins = 90; % Number of bins
 bin_ang = 2*pi/numbins;
@@ -181,6 +183,7 @@ for nseq = 1:length(ind_seq_2)
         ns = ns_new;
         path_ns = pathRats{ns};
         cd(path_ns);
+        disp(['Currently in ' pathRats{ns}])
         
         load (file_input2)
         load (file_input3)
@@ -272,12 +275,9 @@ for itrial = 1:Ntrial
     Data{itrial} = Data0(:,I);
 end
 
-save([data_folder,file_output2],'Data','Data_seqnum','title12','-v7.3');
+save(file_analysis_out_ext, 'Data','Data_seqnum','title12','-v7.3');
 
 %% Ploting
-if ~isdir(fig_folder_out)
-    mkdir(fig_folder_out)
-end
 xbin = 10;
 xaxis0=-360+xbin/2:xbin:360-xbin/2;
 ybin = 10;
@@ -329,8 +329,8 @@ for itrial = 1:Ntrial
         axis square
     end
 end
-saveas(h1,[fig_folder_out,'\SlowG_spkPhaseLock'],'fig')
-saveas(h1,[fig_folder_out,'\SlowG_spkPhaseLock'],'epsc')
+saveas(h1,[FiguresDir,'\SupFigure5a'],'fig')
+saveas(h1,[FiguresDir,'\SupFigure5a'],'epsc')
 close(h1)
 
 cycLimit = [-2 2];
@@ -378,6 +378,7 @@ for itrial = 1:Ntrial
         axis square
     end
 end
-saveas(h2,[fig_folder_out,'\FastG_spkPhaseLock'],'fig')
-saveas(h2,[fig_folder_out,'\FastG_spkPhaseLock'],'epsc')
+saveas(h2,[FiguresDir,'\SupFigure5b'],'fig')
+saveas(h2,[FiguresDir,'\SupFigure5b'],'epsc')
 close(h2)
+end

@@ -1,17 +1,16 @@
-function Figure5(DataDir, AnalysisDir, DownSampleFlag, file_analysis_name_ext, FiguresDir)
-%FIGURE5 Function that plots Figure 5
+function SupFigure5(DataDir, AnalysisDir, file_analysis_name_ext, file_analysis_out_ext, FiguresDir)
+%SUPFIGURE5 Function that plots Suplementary Figure 5
 %   ARGUMENTS:
 %       DataDir:                Raw data directory
 %       AnalysisDir:            Directory to store analysis results
-%       DownSampleFlag:         Boolean flag for downsampling cells setting
 %       file_analysis_name_ext: Full path of meta-analysis file
+%       file_analysis_out_ext:  Full path of meta-analysis file (gamma)
 %       FiguresDir:             Directory to save figure(s). eps and fig format
 %   RELEVANT FIGURES:
-%       Figure5
+%       SupFigure5a, SupFigure5b, SugFigure_cf
 %   NOTE: These scripts take a while to run
-
-close all
 clc
+close all
 FuncDir = pwd;
 %%
 ind = strfind(FuncDir,'MATLAB');
@@ -19,14 +18,14 @@ CodeDatCirDir = [FuncDir(1:ind+5) '\MainFunctions\Code & Data Circular Track'];
 addpath(CodeDatCirDir)
 BayesDecodDir = [FuncDir(1:ind+5) '\Dependencies\BayesianDecodingRipple'];
 addpath(BayesDecodDir)
-circpackDir = [FuncDir(1:ind+5) '\Dependencies\circpackage'];
-addpath(circpackDir)
 GenDir = [FuncDir(1:ind+5) '\GeneralFunctions'];
 addpath(GenDir)
+circpackDir = [FuncDir(1:ind+5) '\Dependencies\circpackage'];
+addpath(circpackDir)
 cd([FuncDir(1:ind+5) '\MainFunctions\Code & Data Circular Track'])
 %%
-doall_get_gammaTFR_eachseq_EH(file_analysis_name_ext, DataDir);
-group_spkphase_approachReward_v3(DataDir, AnalysisDir, DownSampleFlag, file_analysis_name_ext, FiguresDir)
+group_gammaphase_eachseq(DataDir, AnalysisDir, file_analysis_name_ext, file_analysis_out_ext, FiguresDir);
+Stats_spkphaseLock(file_analysis_out_ext, AnalysisDir, FiguresDir);
 %%
 cd(FuncDir)
 fprintf('Done! \n')
