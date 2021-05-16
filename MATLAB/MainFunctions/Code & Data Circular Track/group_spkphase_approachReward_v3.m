@@ -1,25 +1,26 @@
 %% This version add position range to include spikes and add theta phase
 %  and use only the first spike in a sequnece event
-function group_spkphase_approachReward_v3(DownSample)
+function group_spkphase_approachReward_v3(DataDir, AnalysisDir, DownSampleFlag, file_analysis_name_ext, FiguresDir)
 % DownSample: true or false; downsample correct trials
-parentfd = fileparts(mfilename('fullpath'));
+%parentfd = fileparts(mfilename('fullpath'));
 
 powthr = NaN; % in z score; Set to NaN for no threshold
 SpkInSequnece = true; % only include spikes within sequenct events?
 PosIncluded = [-10 -5]; % in location #
 downsample_str = [];
-if DownSample
+if DownSampleFlag
     downsample_str = '_ds';
 end
 file_input1 = 'Data_gammaPhs_cyclenum.mat';
 file_input2 = 'Data_gammaBandpass.mat';
 %file_input3 = [parentfd,'\GroupData\group_gammaTFR_eachseq_20190529.mat'];
-file_input3 = 'E:\ColginLab\Data Analysis\GroupData\group_gammaTFR_eachseq_20190529.mat';
+%file_input3 = 'E:\ColginLab\Data Analysis\GroupData\group_gammaTFR_eachseq_20190529.mat';
 file_input_cell = 'Cells_ds_ALLLaps_v2_vel_0.mat';
 %file_output = [parentfd,'\GroupData Figures\group_spkphase_v3',downsample_str,'.mat'];
-file_output = ['E:\ColginLab\Data Analysis\GroupData\group_spkphase_v3',downsample_str,'.mat'];
+%file_output = ['E:\ColginLab\Data Analysis\GroupData\group_spkphase_v3',downsample_str,'.mat'];
+file_output = fullfile(AnalysisDir, ['group_spkphase_v3',downsample_str,'.mat']);
 %fig_folder_out = [parentfd,'\GroupData Figures\group_spkphase_v3'];
-fig_folder_out = 'E:\ColginLab\Figures\Figure5';
+%fig_folder_out = 'E:\ColginLab\Figures\Figure5';
 directories_allData_v1
 
 numbins = 90; % Number of bins
@@ -29,7 +30,7 @@ ncell = 3;
 nspk = 5;
 nmove = 1;
 % Load sequence data
-seq = load(file_input3);
+seq = load(file_analysis_name_ext);
 
 pos_prdc = nan(seq.Nseq,2);
 pos_real = nan(seq.Nseq,2);
@@ -68,7 +69,7 @@ CellGroup=[]; conditionType=[]; sessionID=[]; timestamp=[]; PhaseAngle=[];
 SpkPhaseAngle_theta = table(CellGroup,conditionType,sessionID,timestamp,PhaseAngle);
 for ns = 1:isession
     cd(pathRats{ns});
-    disp(['Currentrly in ' pathRats{ns}])
+    disp(['Currently in ' pathRats{ns}])
     if exist(file_input1,'file') ~= 2
         continue
     end
@@ -133,7 +134,7 @@ for ns = 1:isession
             outcome = sign_correct_test==0;
         end
         
-        if DownSample
+        if DownSampleFlag
             trialNumDiff = sum(sign_correct_test==1)-sum(sign_correct_test==0);
             if trialNumDiff > 0
                 correctTrials = find(sign_correct_test==1);
@@ -294,10 +295,7 @@ set(gca,'XTick',1:length(ConditionType),'XTickLabel',ConditionType)
 set(gca,'CLim',[0 .05])
 colorbar
 
-if ~isdir(fig_folder_out)
-    mkdir(fig_folder_out)
-end
-
-saveas(h1,[fig_folder_out,'\SpkPhaseLock_AcrossTrack',downsample_str],'fig')
-saveas(h1,[fig_folder_out,'\SpkPhaseLock_AcrossTrack',downsample_str],'epsc')
+saveas(h1,[FiguresDir, '\Figure5',downsample_str],'fig')
+saveas(h1,[FiguresDir, '\Figure5',downsample_str],'epsc')
 close(h1)
+end
