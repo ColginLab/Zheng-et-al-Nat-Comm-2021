@@ -1,5 +1,5 @@
 function SupFigure5(DataDir, AnalysisDir, file_analysis_name_ext, file_analysis_out_ext, FiguresDir)
-%SUPFIGURE5 Function that plots Suplementary Figure 5
+%SUPFIGURE5 Function that plots Supplementary Figure 5
 %   ARGUMENTS:
 %       DataDir:                Raw data directory
 %       AnalysisDir:            Directory to store analysis results
@@ -7,7 +7,7 @@ function SupFigure5(DataDir, AnalysisDir, file_analysis_name_ext, file_analysis_
 %       file_analysis_out_ext:  Full path of meta-analysis file (gamma)
 %       FiguresDir:             Directory to save figure(s). eps and fig format
 %   RELEVANT FIGURES:
-%       SupFigure5a, SupFigure5b, SugFigure_cf
+%       SupFigure5a, SupFigure5b, SupFigure_cf
 %   NOTE: These scripts take a while to run
 clc
 close all

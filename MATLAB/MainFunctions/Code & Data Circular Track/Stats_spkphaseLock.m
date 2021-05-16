@@ -172,8 +172,8 @@ ylabel('Circular-linear regression (r)')
 set(gca,'XTick',1:length(TrialType_uq),'XTickLabel',title12,'XTickLabelRotation',45,'YLim',[0 .1])
 
 %% save output
-saveas(h1,[FiguresDir,'\SugFigure_cf'],'fig')
-saveas(h1,[FiguresDir,'\SugFigure_cf'],'epsc')
+saveas(h1,[FiguresDir,'\SupFigure_cf'],'fig')
+saveas(h1,[FiguresDir,'\SupFigure_cf'],'epsc')
 close(h1)
 save([AnalysisDir,'\Stats_spkphaseLock.mat'],'StatsData')
 end
